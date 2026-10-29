@@ -1,4 +1,4 @@
-
+import os
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -24,13 +24,25 @@ app.include_router(usuarios_router)
 
 app.include_router(dashboard_router)
 
+# Orígenes autorizados para utilizar la API
+origins = [
+    "https://inventra-frontend-93g8.onrender.com",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+# Permitir también el valor configurado en Render
+frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+
+if frontend_url and frontend_url not in origins:
+    origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173",
-    "http://127.0.0.1:5173"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 
